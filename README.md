@@ -29,13 +29,15 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-## Dataset layout
+## Current dataset in app
 
-The UI reads from:
+The app currently uses:
 
-- `src/data/hotels.us.fhr.sample.json` (sample starter data)
+- `src/data/hotels.us.fhr.full.json`
 
-Normalized shape:
+This file currently contains a full US-only FHR property list derived from the US Credit Card Guide FHR/THC map feed and filtered to `Program = FHR` + `-US` AMEX property paths.
+
+## Normalized schema
 
 ```ts
 {
@@ -60,7 +62,21 @@ Normalized shape:
 
 ## Data refresh workflows
 
-### A) Preferred: official AMEX export (CSV/JSON)
+### A) Refresh full US FHR list from USCCG map feed
+
+```bash
+npm run data:refresh:usccg -- src/data/hotels.us.fhr.full.json
+```
+
+- Downloads Google My Maps KML used by US Credit Card Guide map
+- Filters to `Program = FHR`
+- Filters to US AMEX property URLs (`/property/<State-US>/...`)
+- Dedupe by AMEX URL
+- Writes normalized JSON for UI use
+
+Script: `scripts/refresh-fhr-from-usccg-map.mjs`
+
+### B) Preferred when available: official AMEX export (CSV/JSON)
 
 1. Export/compile a US-only FHR source file from official AMEX travel inventory.
 2. Save as CSV/JSON (template: `data/source/amex-fhr-us.template.csv`).
@@ -70,19 +86,11 @@ Normalized shape:
 npm run data:refresh -- data/source/amex-fhr-us.csv src/data/hotels.us.fhr.normalized.json
 ```
 
-What it does:
-
-- filters to `country = US` and FHR rows
-- normalizes fields
-- deduplicates by `name + city + state`
-- geocodes missing coordinates
-- marks unresolved rows as `review`
-
 Script: `scripts/refresh-fhr-data.mjs`
 
-### B) Fallback: build dataset from AMEX property URLs list
+### C) Fallback: build dataset from AMEX property URL list
 
-If you cannot export full inventory but can collect property URLs from AMEX (or browser logs), paste URLs into:
+If you have a URL dump but no structured export, paste one URL per line into:
 
 - `data/source/amex-fhr-us.urls.txt`
 
@@ -92,17 +100,15 @@ Then run:
 npm run data:from-urls -- data/source/amex-fhr-us.urls.txt src/data/hotels.us.fhr.normalized.json
 ```
 
-This importer:
-
-- parses name/city/state from AMEX property URLs
-- deduplicates records
-- geocodes approximate coordinates
-- marks rows `incomplete`/`review` until address/brand/phone are confirmed
-
 Script: `scripts/build-dataset-from-property-urls.mjs`
+
+## Source and validation notes
+
+- Detailed sourcing and assumptions: `docs/data-sourcing-notes.md`
+- Additional review list for older sample rows: `docs/unconfirmed-properties.md`
 
 ## Notes on data confidence
 
-- Sample dataset intentionally includes both `confirmed` and `review` rows to demonstrate uncertain/missing handling.
-- See `docs/unconfirmed-properties.md` for sample entries pending reconfirmation.
-- No synthetic hotels are generated: refresh/import scripts only transform provided source rows/URLs.
+- This repo now includes a substantially expanded US FHR dataset.
+- Some fields may remain `null` if missing from source metadata (e.g., full address, phone, brand).
+- Revalidate against official AMEX inventory periodically.

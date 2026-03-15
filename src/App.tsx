@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import hotels from './data/hotels.us.fhr.sample.json';
+import hotels from './data/hotels.us.fhr.full.json';
 import type { HotelRecord } from './types';
 import { HotelMap } from './components/HotelMap';
 import { Sidebar } from './components/Sidebar';

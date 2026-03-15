@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "data:refresh": "node scripts/refresh-fhr-data.mjs",
-    "data:from-urls": "node scripts/build-dataset-from-property-urls.mjs"
+    "data:from-urls": "node scripts/build-dataset-from-property-urls.mjs",
+    "data:refresh:usccg": "node scripts/refresh-fhr-from-usccg-map.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
