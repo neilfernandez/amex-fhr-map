@@ -1,0 +1,3 @@
+# Paste one AMEX FHR US property URL per line.
+# Example:
+# https://www.americanexpress.com/en-us/travel/discover/property/California-US/Los-Angeles/Hotel-Bel-Air
